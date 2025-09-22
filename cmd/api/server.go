@@ -1,0 +1,66 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"strings"
+)
+
+type user struct {
+	Name string `json:"name"`
+	Age  string `json:"age"`
+	City string `json:"city"`
+}
+
+func teachersHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Path)
+	id := strings.Split(r.URL.Path, "/")
+	fmt.Println("ID:", id)
+	fmt.Println("ID reak:", id[2])
+
+	switch r.Method {
+	case http.MethodGet:
+		w.Write([]byte("Welcome to the teachers page! Get method"))
+	case http.MethodPost:
+		w.Write([]byte("Welcome to the teachers page! Post method"))
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte("Method not allowed"))
+		return
+	}
+	// w.Write([]byte("Welcome to the teachers page!"))
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	// fmt.Fprintf(w, "Hello, World!")
+	fmt.Println("Method: ", r.Method)
+
+	w.Write([]byte("Hello, World!"))
+}
+
+func execHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Method: ", r.Method)
+	w.Write([]byte("Welcome to the exec page!"))
+}
+
+func studentsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Method: ", r.Method)
+	w.Write([]byte("Welcome to the students page!"))
+}
+func main() {
+	port := ":3000"
+
+	http.HandleFunc("/", rootHandler)
+
+	http.HandleFunc("/students", studentsHandler)
+
+	http.HandleFunc("/teachers/", teachersHandler)
+
+	http.HandleFunc("/exec", execHandler)
+	fmt.Println("Starting server on port", port)
+	err := http.ListenAndServe(port, nil)
+	if err != nil {
+		panic(err)
+	}
+
+}
