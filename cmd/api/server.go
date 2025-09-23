@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,6 +13,8 @@ type user struct {
 	City string `json:"city"`
 }
 
+// cmd for creating self-signed certificate
+// openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout key.pem -out cert.pem -config openssl.cnf
 func teachersHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 	id := strings.Split(r.URL.Path, "/")
@@ -49,6 +52,8 @@ func studentsHandler(w http.ResponseWriter, r *http.Request) {
 }
 func main() {
 	port := ":3000"
+	keyFile := "key.pem"
+	certFile := "cert.pem"
 
 	http.HandleFunc("/", rootHandler)
 
@@ -57,8 +62,18 @@ func main() {
 	http.HandleFunc("/teachers/", teachersHandler)
 
 	http.HandleFunc("/exec", execHandler)
+
+	tlsconfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
+	server := &http.Server{
+		Addr:      port,
+		Handler:   nil,
+		TLSConfig: tlsconfig,
+	}
+
 	fmt.Println("Starting server on port", port)
-	err := http.ListenAndServe(port, nil)
+	err := server.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		panic(err)
 	}
