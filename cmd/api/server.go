@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"schoolapi/internal/api/middlewares"
 	"strings"
 )
 
@@ -54,21 +55,22 @@ func main() {
 	port := ":3000"
 	keyFile := "key.pem"
 	certFile := "cert.pem"
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/", rootHandler)
+	mux.HandleFunc("/", rootHandler)
 
-	http.HandleFunc("/students", studentsHandler)
+	mux.HandleFunc("/students", studentsHandler)
 
-	http.HandleFunc("/teachers/", teachersHandler)
+	mux.HandleFunc("/teachers/", teachersHandler)
 
-	http.HandleFunc("/exec", execHandler)
+	mux.HandleFunc("/exec", execHandler)
 
 	tlsconfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 	}
 	server := &http.Server{
 		Addr:      port,
-		Handler:   nil,
+		Handler:   middlewares.SecurityHeaders(mux),
 		TLSConfig: tlsconfig,
 	}
 
