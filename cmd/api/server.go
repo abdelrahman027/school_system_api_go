@@ -4,8 +4,9 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"schoolapi/internal/api/middlewares"
+	mw "schoolapi/internal/api/middlewares"
 	"strings"
+	"time"
 )
 
 type user struct {
@@ -68,9 +69,11 @@ func main() {
 	tlsconfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 	}
+	r1 := mw.NewRateLimiter(5, time.Minute)
 	server := &http.Server{
-		Addr:      port,
-		Handler:   middlewares.SecurityHeaders(mux),
+		Addr: port,
+		// Handler:   middlewares.SecurityHeaders(mux),
+		Handler:   r1.Middleware(mw.Compression(mw.SecurityHeaders(mw.Cors(mw.ResponseTime(mux))))),
 		TLSConfig: tlsconfig,
 	}
 

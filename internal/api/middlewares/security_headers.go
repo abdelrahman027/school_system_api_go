@@ -15,6 +15,10 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Permissions-Policy", "geolocation=(), microphone=()")
+		w.Header().Set("Cross-Origin-Resource-Policy", "same-origin")
+		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		w.Header().Set("Cross-Origin-Embedder-Policy", "require-corp")
+
 		next.ServeHTTP(w, r)
 	})
 }
